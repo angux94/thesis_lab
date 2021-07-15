@@ -283,14 +283,14 @@ int main(int argc, char** argv)
   while(ros::ok()){
 
     spawn_sphere("left_wrist", "/left_wrist", "/world", 0.051, &listener, &move_group, &planning_scene_interface);
-    spawn_sphere("right_wrist", "/right_wrist", "/world", 0.051, &listener, &move_group, &planning_scene_interface);
-    spawn_sphere("head", "/body_head", "/world", 0.117, &listener, &move_group, &planning_scene_interface);
+    //spawn_sphere("right_wrist", "/right_wrist", "/world", 0.051, &listener, &move_group, &planning_scene_interface);
+    //spawn_sphere("head", "/body_head", "/world", 0.117, &listener, &move_group, &planning_scene_interface);
     spawn_cylinder("left_humerus", "/left_humerus", "/world", 0.3384, 0.051, &listener, &move_group, &planning_scene_interface);
-    spawn_cylinder("right_humerus", "/right_humerus", "/world", 0.3384, 0.051, &listener, &move_group, &planning_scene_interface);
+    //spawn_cylinder("right_humerus", "/right_humerus", "/world", 0.3384, 0.051, &listener, &move_group, &planning_scene_interface);
     spawn_cylinder("left_fore_arm", "/left_fore_arm", "/world", 0.261, 0.051, &listener, &move_group, &planning_scene_interface);
-    spawn_cylinder("right_fore_arm", "/right_fore_arm", "/world", 0.261, 0.051, &listener, &move_group, &planning_scene_interface);
+    //spawn_cylinder("right_fore_arm", "/right_fore_arm", "/world", 0.261, 0.051, &listener, &move_group, &planning_scene_interface);
     spawn_box("left_palm", "/left_palm", "/world", 0.09, 0.1944, 0.03996, &listener, &move_group, &planning_scene_interface);
-    spawn_box("right_palm", "/right_palm", "/world", 0.09, 0.1944, 0.03996, &listener, &move_group, &planning_scene_interface);
+    //spawn_box("right_palm", "/right_palm", "/world", 0.09, 0.1944, 0.03996, &listener, &move_group, &planning_scene_interface);
 
     // UPDATE SCENE
     //planning_scene_monitor::PlanningSceneMonitorPtr psm_ptr = visual_tools.getPlanningSceneMonitor();

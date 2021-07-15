@@ -78,7 +78,7 @@
   <xacro:include filename="$(find ur_description)/urdf/ur5.urdf.xacro" />
 
   <!-- scalable person -->
-  <xacro:include filename="$(find myur5_description)/urdf/scalable_person.urdf.xacro" />
+  <!--xacro:include filename="$(find myur5_description)/urdf/scalable_person.urdf.xacro" /-->
 
   <!-- environment -->
   <!--xacro:include filename="$(find myur5_description)/urdf/environment.urdf.xacro" /-->

@@ -186,7 +186,8 @@ int main(int argc, char** argv)
     start_state_ = my_plan.start_state_;
 
     sleep(2.0);
-    /*
+
+
     // spawn object
     moveit_msgs::CollisionObject collision_object;
     collision_object.header.frame_id = move_group.getPlanningFrame();
@@ -220,19 +221,33 @@ int main(int argc, char** argv)
     ROS_INFO("Add an object into the world");
     planning_scene_interface.addCollisionObjects(collision_objects);
     sleep(2.0);
-    */
+
 
     //planning_scene_monitor::PlanningSceneMonitorPtr psm_ptr = visual_tools.getPlanningSceneMonitor();
     //planning_scene_monitor::LockedPlanningSceneRO planning_scene_RO(psm_ptr);
     planning_scene_monitor->requestPlanningSceneState();
     planning_scene_monitor::LockedPlanningSceneRO planning_scene_RO(planning_scene_monitor);
 
-    double freq = planning_scene_monitor->getPlanningScenePublishingFrequency();
-    cout << "freq: " << freq << endl;
+
+
+    double ps_pub_freq = planning_scene_monitor->getPlanningScenePublishingFrequency();
+    cout << "ps_pub_freq: " << ps_pub_freq << endl;
+    double su_freq = planning_scene_monitor->getStateUpdateFrequency();
+    cout << "su_freq: " << su_freq << endl;
+
+    planning_scene_monitor->setPlanningScenePublishingFrequency(20);
+    ps_pub_freq = planning_scene_monitor->getPlanningScenePublishingFrequency();
+    cout << "ps_pub_freq: " << ps_pub_freq << endl;
+
+    bool us = planning_scene_monitor->updatesScene(planning_scene);
+    cout << "us: " << us << endl;
+
 
 
     move_group.asyncExecute(my_plan);
-    sleep(3.0);
+    sleep(2.0);
+
+
     bool arrived = false;
 
     // Prints the objects present in the scene
@@ -243,14 +258,37 @@ int main(int argc, char** argv)
     std::cout << *i << ' ' << endl;
 
 
+    //collision_detection::AllowedCollisionMatrix::AllowedCollisionMatrix();
+
+    while ( ros::ok() ){
+       //process collision objects in scene
+       moveit::planning_interface::PlanningSceneInterface planning_scene_interface_;
+       std::map<std::string, moveit_msgs::CollisionObject> c_objects_map = planning_scene_interface_.getObjects();
+       for(auto& kv : c_objects_map){
+         planning_scene->processCollisionObjectMsg(kv.second);
+       }
+       robot_state::RobotState robot_state = planning_scene->getCurrentState();
+       //planning_scene_monitor->updateSceneWithCurrentState();
+
+       //print distance
+       ROS_INFO_STREAM("Distance to Collision: " << planning_scene->distanceToCollision(robot_state));
+
+       ros::Duration(1.).sleep();
+     }
+
+    // Spin for path validity
+    /*
+    bool ispathvalid;
     while(ros::ok()){
       // need to find a condition to break the loop when arriving to the desired position
 
-      bool ispathvalid = planning_scene_RO->isPathValid(start_state_,trajectory_,"manipulator");
+      ispathvalid = planning_scene_RO->isPathValid(start_state_,trajectory_,"manipulator");
 
       if (!ispathvalid){
           ROS_INFO("Invalid path");
+
           move_group.stop();
+
           success = (move_group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
           ROS_INFO( "Completed the plan to inside ws %s", success ? "" : "FAILED");
           if(success){
@@ -271,16 +309,18 @@ int main(int argc, char** argv)
 
           if(!success)
           return 0;
+
       }
+
       else{
         ROS_INFO("Path is valid");
       }
-
+      sleep(1.0);
       // this stucks the loop????
       //planning_scene_monitor->requestPlanningSceneState();
       //planning_scene_monitor::LockedPlanningSceneRO planning_scene_RO(planning_scene_monitor);
 
-    }
+  }*/
 
 
 

@@ -142,6 +142,11 @@ include_directories(
 #   src/${PROJECT_NAME}/motion_planning.cpp
 # )
 
+#add_library(universal_robot
+#  src/universal_robot/ur_kinematics/include/ur_kinematics/ur_kin.h
+#  src/universal_robot/ur_kinematics/include/ur_kinematics/ikfast.h
+#)
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -244,6 +249,13 @@ target_link_libraries(des_frame_pub ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 add_executable(des_point_pub src/des_point_pub.cpp)
 add_dependencies(des_point_pub ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(des_point_pub ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+
+
+
+
+#add_executable(ur_kin src/ur_kin.cpp)
+#add_dependencies(ur_kin ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#target_link_libraries(ur_kin ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 
 ## Rename C++ executable without prefix
