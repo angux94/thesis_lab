@@ -20,6 +20,10 @@
 using namespace std;
 
 
+// Code that takes care of uploading the pre-recorded trajectories and calling the respective trajectory corresponding to the necesary motion
+// from current position to desired position based on the ID received in */des_frame* topic
+
+
 std::string des_frame;
 
 void cb_frame(const std_msgs::String::ConstPtr& msg_frame)
@@ -94,7 +98,8 @@ int main(int argc, char** argv)
   // Define number of ellements (trajectories) stored    ex: 3 points -> 6 possible trajectories within them
   //                                                         4 points -> 12 possible trajectories within them
   //                                                         5 points -> 20 possible trajectories within them
-  int noe = 20;
+  //
+  int noe = 20;   //(no of points)^2 - (no of points)
 
   // Needed variables for storing rosbag data
   moveit::planning_interface::MoveGroupInterface::Plan my_plan;

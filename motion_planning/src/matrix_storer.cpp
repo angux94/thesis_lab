@@ -18,6 +18,8 @@
 #include <std_msgs/Float64.h>
 #include <std_msgs/Int32.h>
 #include <std_msgs/String.h>
+#include <std_msgs/Header.h>
+#include <sensor_msgs/JointState.h>
 
 #include <rosbag/bag.h>
 
@@ -25,6 +27,7 @@ using namespace std;
 
 geometry_msgs::Pose desired, initial;
 
+//Simpler version of matrix_storer_5 but for less trajectories
 
 int main(int argc, char** argv)
 {
@@ -43,7 +46,7 @@ int main(int argc, char** argv)
   const robot_state::JointModelGroup* joint_model_group =
   move_group.getCurrentState()->getJointModelGroup(PLANNING_GROUP);
 
-  move_group.setPlannerId("RRTConnect");
+  move_group.setPlannerId("BiTRRT");
 
   namespace rvt = rviz_visual_tools;
   moveit_visual_tools::MoveItVisualTools visual_tools("pedestal");
@@ -145,6 +148,25 @@ int main(int argc, char** argv)
   door_2[4] = 1.2306;
   door_2[5] = 1.3617;
 
+  std::vector<double> seat_1 = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  //seat_1 joint values
+  seat_1[0] = 1.3629;
+  seat_1[1] = 0.013;
+  seat_1[2] = 0.7614;
+  seat_1[3] = -0.8902;
+  seat_1[4] = 1.6856;
+  seat_1[5] = 1.3589;
+
+  std::vector<double> sw_1 = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  //seat_1 joint values
+  sw_1[0] = 0.3267;
+  sw_1[1] = -1.1517;
+  sw_1[2] = 2.1783;
+  sw_1[3] = -1.6235;
+  sw_1[4] = 1.1777;
+  sw_1[5] = -0.00698132;
+
+  move_group.allowReplanning(true);
   move_group.setJointValueTarget(door_2);
 
   success = (move_group.plan(plan_array[0][1]) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
@@ -158,33 +180,15 @@ int main(int argc, char** argv)
 
     visual_tools.publishTrajectoryLine(plan_array[0][1].trajectory_, joint_model_group);
     visual_tools.trigger();
-    move_group.execute(plan_array[0][1]);
+    move_group.asyncExecute(plan_array[0][1]);
   }
 
   if(!success)
   return 0;
 
-
-  // Third trajectory goor_2->seat_1
-
-  std::vector<double> seat_1 = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-  /* seat_1 joint values
-  seat_1[0] = 1.3629;
-  seat_1[1] = 0.013;
-  seat_1[2] = 0.7614;
-  seat_1[3] = -0.8902;
-  seat_1[4] = 1.6856;
-  seat_1[5] = 1.3589;
-  */
-
-  //Test point2
-  seat_1[0] = 1.7208;
-  seat_1[1] = -0.6703;
-  seat_1[2] = 0.7801;
-  seat_1[3] = 0.6494;
-  seat_1[4] = 1.8821;
-  seat_1[5] = 1.3620;
-
+  sleep(1.0);
+  // Third trajectory door_2->seat_1
+  move_group.stop();
   move_group.setJointValueTarget(seat_1);
 
   success = (move_group.plan(plan_array[1][2]) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
@@ -198,13 +202,13 @@ int main(int argc, char** argv)
 
     visual_tools.publishTrajectoryLine(plan_array[1][2].trajectory_, joint_model_group);
     visual_tools.trigger();
-    move_group.execute(plan_array[1][2]);
+    move_group.asyncExecute(plan_array[1][2]);
   }
 
   if(!success)
   return 0;
 
-
+/*
   // Fourth trajectory seat_1->home
 
   move_group.setJointValueTarget(home);
@@ -279,13 +283,9 @@ int main(int argc, char** argv)
     visual_tools.trigger();
     move_group.execute(plan_array[1][0]);
   }
-
+*/
 
   end_joints = move_group.getCurrentJointValues();
-
-
-
-
 
 
 
@@ -293,59 +293,65 @@ int main(int argc, char** argv)
   std_msgs::Float64 num[3][3];
 
   num[0][1].data = plan_array[0][1].planning_time_;
-  num[0][2].data = plan_array[0][2].planning_time_;
-  num[1][0].data = plan_array[1][0].planning_time_;
+  //num[0][2].data = plan_array[0][2].planning_time_;
+  //num[1][0].data = plan_array[1][0].planning_time_;
   num[1][2].data = plan_array[1][2].planning_time_;
-  num[2][0].data = plan_array[2][0].planning_time_;
-  num[2][1].data = plan_array[2][1].planning_time_;
+  //num[2][0].data = plan_array[2][0].planning_time_;
+  //num[2][1].data = plan_array[2][1].planning_time_;
 
 
   //robot states
   moveit_msgs::RobotState r_state[3][3];
   r_state[0][1] = plan_array[0][1].start_state_;
-  r_state[0][2] = plan_array[0][2].start_state_;
-  r_state[1][0] = plan_array[1][0].start_state_;
+  //r_state[0][2] = plan_array[0][2].start_state_;
+  //r_state[1][0] = plan_array[1][0].start_state_;
   r_state[1][2] = plan_array[1][2].start_state_;
-  r_state[2][0] = plan_array[2][0].start_state_;
-  r_state[2][1] = plan_array[2][1].start_state_;
+  //r_state[2][0] = plan_array[2][0].start_state_;
+  //r_state[2][1] = plan_array[2][1].start_state_;
 
   //trajectories
   moveit_msgs::RobotTrajectory traj[3][3];
   traj[0][1] = plan_array[0][1].trajectory_;
-  traj[0][2] = plan_array[0][2].trajectory_;
-  traj[1][0] = plan_array[1][0].trajectory_;
+  //traj[0][2] = plan_array[0][2].trajectory_;
+  //traj[1][0] = plan_array[1][0].trajectory_;
   traj[1][2] = plan_array[1][2].trajectory_;
-  traj[2][0] = plan_array[2][0].trajectory_;
-  traj[2][1] = plan_array[2][1].trajectory_;
+  //traj[2][0] = plan_array[2][0].trajectory_;
+  //traj[2][1] = plan_array[2][1].trajectory_;
 
 
-  int row_size = sizeof(num)/sizeof(num[0]);
-  int col_size = sizeof(num[0])/sizeof(num[0][0]);
+  //int row_size = sizeof(num)/sizeof(num[0]);
+  //int col_size = sizeof(num[0])/sizeof(num[0][0]);
 
   rosbag::Bag bag;
-  bag.open("matrix_test.bag", rosbag::bagmode::Write);
+  bag.open("move_data.bag", rosbag::bagmode::Write);
 
 
-  for(int i=0; i < row_size; i++){
+  //for(int i=0; i < row_size; i++){
 
-    for(int j=0; j < col_size; j++){
-      if(i != j){
-        cout << i << endl;
-        cout << j << endl;
-        bag.write("start_names", ros::Time::now(), start_name[i]);
-        cout << "start: " << start_name[i] << endl;
+  //  for(int j=0; j < col_size; j++){
+  //    if(i != j){
+  //      cout << i << endl;
+  //      cout << j << endl;
+  //      bag.write("start_names", ros::Time::now(), start_name[i]);
+  //      cout << "start: " << start_name[i] << endl;
 
-        bag.write("final_names", ros::Time::now(), final_name[j]);
-        cout << "final: " << final_name[j] << endl;
+  //      bag.write("final_names", ros::Time::now(), final_name[j]);
+  //      cout << "final: " << final_name[j] << endl;
 
-        bag.write("time", ros::Time::now(), num[i][j]);
-        cout << "" << num[i][j] << endl;
-        bag.write("state", ros::Time::now(), r_state[i][j]);
-        cout << "" << r_state[i][j] << endl;
-        bag.write("trajectory", ros::Time::now(), traj[i][j]);
-      }
-    }
-  }
+        bag.write("time", ros::Time::now(), num[0][1]);
+        bag.write("time", ros::Time::now(), num[1][2]);
+  //      cout << "" << num[i][j] << endl;
+        bag.write("state", ros::Time::now(), r_state[0][1]);
+        bag.write("state", ros::Time::now(), r_state[1][2]);
+  //      cout << "" << r_state[i][j] << endl;
+        bag.write("trajectory", ros::Time::now(), traj[0][1]);
+        bag.write("trajectory", ros::Time::now(), traj[1][2]);
+        //bag.write("head", ros::Time::now(), head);
+        //bag.write("positions", ros::Time::now(), positions);
+        //bag.write("vels", ros::Time::now(), vels);
+  //    }
+  //  }
+  //}
 
 
   bag.close();

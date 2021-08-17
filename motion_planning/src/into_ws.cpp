@@ -245,7 +245,7 @@ int main(int argc, char** argv)
 
 
     move_group.asyncExecute(my_plan);
-    sleep(2.0);
+    sleep(3.0);
 
 
     bool arrived = false;
@@ -259,7 +259,7 @@ int main(int argc, char** argv)
 
 
     //collision_detection::AllowedCollisionMatrix::AllowedCollisionMatrix();
-
+    /*
     while ( ros::ok() ){
        //process collision objects in scene
        moveit::planning_interface::PlanningSceneInterface planning_scene_interface_;
@@ -275,9 +275,9 @@ int main(int argc, char** argv)
 
        ros::Duration(1.).sleep();
      }
-
+     */
     // Spin for path validity
-    /*
+
     bool ispathvalid;
     while(ros::ok()){
       // need to find a condition to break the loop when arriving to the desired position
@@ -320,7 +320,7 @@ int main(int argc, char** argv)
       //planning_scene_monitor->requestPlanningSceneState();
       //planning_scene_monitor::LockedPlanningSceneRO planning_scene_RO(planning_scene_monitor);
 
-  }*/
+  }
 
 
 

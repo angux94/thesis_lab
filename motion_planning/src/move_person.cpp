@@ -18,7 +18,7 @@
 
 using namespace std;
 
-
+// code that publish a sinusoidal signal in the LShoulderPsi joint of the mannequin model, for testing purposes
 
 int main(int argc, char** argv)
 {

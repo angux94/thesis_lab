@@ -4,6 +4,8 @@
 #include <turtlesim/Spawn.h>
 #include <math.h>
 
+//read a computes the distance between the end effector ee_link and different frames
+
 int main(int argc, char** argv){
   ros::init(argc, argv, "tf_listener");
 
@@ -58,7 +60,7 @@ int main(int argc, char** argv){
       ROS_ERROR("%s",ex.what());
       ros::Duration(1.0).sleep();
       continue;
-    }    
+    }
 
     try{
       list_ee_rh.waitForTransform("/ee_link", "/right_humerus_sensor", ros::Time(0), ros::Duration(3.0));
@@ -69,7 +71,7 @@ int main(int argc, char** argv){
       ROS_ERROR("%s",ex.what());
       ros::Duration(1.0).sleep();
       continue;
-    } 
+    }
 
     /*
     geometry_msgs::PoseStamped ee_pose;
@@ -81,13 +83,13 @@ int main(int argc, char** argv){
     */
 
     double lp_dist, rp_dist, lh_dist, rh_dist;
-    
+
     lp_dist = sqrt( pow(transf_lp.getOrigin().x(),2) + pow(transf_lp.getOrigin().y(),2)
       + pow(transf_lp.getOrigin().z(),2) );
     rp_dist = sqrt( pow(transf_rp.getOrigin().x(),2) + pow(transf_rp.getOrigin().y(),2)
       + pow(transf_rp.getOrigin().z(),2) );
     lh_dist = sqrt( pow(transf_lh.getOrigin().x(),2) + pow(transf_lh.getOrigin().y(),2)
-      + pow(transf_lh.getOrigin().z(),2) );    
+      + pow(transf_lh.getOrigin().z(),2) );
     rh_dist = sqrt( pow(transf_rh.getOrigin().x(),2) + pow(transf_rh.getOrigin().y(),2)
       + pow(transf_rh.getOrigin().z(),2) );
 

@@ -13,6 +13,8 @@
 
 using namespace std;
 
+// Plans and performs all the possible trajectories between the diferent sagepoints, and stores them into a bag file for them to be loaded in matrix_reader_5
+// intended for off-line trajectories computations
 
 int main(int argc, char** argv)
 {
@@ -31,7 +33,8 @@ int main(int argc, char** argv)
   const robot_state::JointModelGroup* joint_model_group =
   move_group.getCurrentState()->getJointModelGroup(PLANNING_GROUP);
 
-  move_group.setPlannerId("RRTConnect");
+  // Select the preferred planner to use
+  move_group.setPlannerId("BiTRRT");
 
   namespace rvt = rviz_visual_tools;
   moveit_visual_tools::MoveItVisualTools visual_tools("pedestal");
@@ -69,7 +72,7 @@ int main(int argc, char** argv)
   moveit::planning_interface::MoveGroupInterface::Plan plan_array[no_p][no_p];
   moveit_msgs::RobotTrajectory trajectory;
 
-  // Store the respective names of the points
+  // Store the respective names of the safe points
   std_msgs::String start_name[no_p], final_name[no_p];
 
   start_name[0].data = "home";

@@ -8,12 +8,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 
+# used to plot real time data of the joinnt values, not fully implemented as it wasn't used in the end
 
 def callback(data):
     global counter, joint_velocities, x
     #joint_velocities = np.vstack((joint_velocities, data.velocity))
     #print("Velocities: " + str(joint_velocities[:,0]))
-    
+
     #fig = plt.figure(1)
 
     #samples = np.shape(joint_velocities[:,0])
@@ -51,7 +52,7 @@ def listener():
     global joint_velocities,x
     rospy.init_node('plotter', anonymous=True)
 
-    
+
     rate = rospy.Rate(50) # 10hz
 
     while not rospy.is_shutdown():
@@ -73,10 +74,10 @@ if __name__ == '__main__':
     counter = 0
     joint_velocities = np.zeros((6,))
     x = [0,1]
-    
+
     rospy.init_node("plotter")
     rospy.Subscriber("joint_states", JointState, callback)
-    
+
     plt.ion()
     plt.show()
     rospy.spin()

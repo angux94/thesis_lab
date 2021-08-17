@@ -28,6 +28,8 @@
 
 using namespace std;
 
+//simplest version of read and execute pre recorded trajectories, just for 2 trajectories and to execute them, not reading any id information
+
 geometry_msgs::Pose desired, initial;
 std::vector<double> joint_value = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
@@ -93,7 +95,7 @@ int main(int argc, char** argv)
   for(rosbag::MessageInstance const m: rosbag::View(bag))
   {
     //ttt = m.instantiate<double>();
-    
+
     //std::cout << "time: " << ttt << std::endl;
     //move_group.execute(load_plan);
 
@@ -127,10 +129,10 @@ int main(int argc, char** argv)
         std::cout << "traj" << std::endl;
         trajectory.joint_trajectory = traj->joint_trajectory;
         trajectory.multi_dof_joint_trajectory = traj->multi_dof_joint_trajectory;
-        
+
         my_plan.trajectory_ = trajectory;
         plan_array[i].trajectory_ = my_plan.trajectory_;
-        
+
         cout << "executing" << endl;
         move_group.execute(my_plan);
         i += 1;

@@ -29,65 +29,66 @@
 
 using namespace std;
 
-
+//Spawns different object types linked to the mannequin frames. Constantly updates MoveIt planning scene to track the moving objects (mannequin) in real time
 
 void spawn_sphere(std::string obj_id, std::string des_frame, std::string ref_frame, double radius, tf::TransformListener* listener, moveit::planning_interface::MoveGroupInterface* move_group, moveit::planning_interface::PlanningSceneInterface* planning_scene_interface){
 
-  tf::StampedTransform transform;
-  try{
-    listener->lookupTransform(ref_frame, des_frame,
-                             ros::Time(0), transform);
-  }
-  catch (tf::TransformException ex){
-    ROS_ERROR("%s",ex.what());
-    ros::Duration(1.0).sleep();
-  }
+    tf::StampedTransform transform;
+    try{
+      listener->lookupTransform(ref_frame, des_frame,
+                               ros::Time(0), transform);
+    }
+    catch (tf::TransformException ex){
+      ROS_ERROR("%s",ex.what());
+      ros::Duration(1.0).sleep();
+    }
 
-  // spawn object
-  moveit_msgs::CollisionObject sphere_object;
-  sphere_object.header.frame_id = move_group->getPlanningFrame();
-  // The id of the object is used to identify it.
-  sphere_object.id = obj_id;
+    // spawn object
+    moveit_msgs::CollisionObject sphere_object;
+    sphere_object.header.frame_id = move_group->getPlanningFrame();
+    // The id of the object is used to identify it.
+    sphere_object.id = obj_id;
 
-  // Define a box to add to the world.
-  shape_msgs::SolidPrimitive sphere_shape;
-  sphere_shape.type = sphere_shape.SPHERE;
-  sphere_shape.dimensions.resize(1);
-  sphere_shape.dimensions[0] = radius;
+    // Define a box to add to the world.
+    shape_msgs::SolidPrimitive sphere_shape;
+    sphere_shape.type = sphere_shape.SPHERE;
+    sphere_shape.dimensions.resize(1);
+    sphere_shape.dimensions[0] = radius;
 
-  geometry_msgs::Pose sphere_pose;
+    geometry_msgs::Pose sphere_pose;
 
-  sphere_pose.position.x =  transform.getOrigin().x(); // before 1.65
-  sphere_pose.position.y = transform.getOrigin().y(); // before 1.65
-  sphere_pose.position.z =  transform.getOrigin().z(); // before 0.55
-  sphere_pose.orientation.w = 1.0;
+    sphere_pose.position.x =  transform.getOrigin().x(); // before 1.65
+    sphere_pose.position.y = transform.getOrigin().y(); // before 1.65
+    sphere_pose.position.z =  transform.getOrigin().z(); // before 0.55
+    sphere_pose.orientation.w = 1.0;
 
-  tf2::Quaternion qs_orig, qs_rot, qs_new;
+    tf2::Quaternion qs_orig, qs_rot, qs_new;
 
-  // Get the original orientation of 'commanded_pose'
-  tf2::convert(sphere_pose.orientation , qs_orig);
+    // Get the original orientation of 'commanded_pose'
+    tf2::convert(sphere_pose.orientation , qs_orig);
 
-  double r=0.0, p=0, y=0.0;  // Rotate the previous pose by 180* about X
-  qs_rot.setRPY(r, p, y);
+    double r=0.0, p=0, y=0.0;  // Rotate the previous pose by 180* about X
+    qs_rot.setRPY(r, p, y);
 
-  qs_new = qs_rot*qs_orig;  // Calculate the new orientation
-  qs_new.normalize();
+    qs_new = qs_rot*qs_orig;  // Calculate the new orientation
+    qs_new.normalize();
 
-  // Stuff the new rotation back into the pose. This requires conversion into a msg type
-  tf2::convert(qs_new, sphere_pose.orientation);
+    // Stuff the new rotation back into the pose. This requires conversion into a msg type
+    tf2::convert(qs_new, sphere_pose.orientation);
 
 
-  sphere_object.primitives.push_back(sphere_shape);
-  sphere_object.primitive_poses.push_back(sphere_pose);
-  sphere_object.operation = sphere_object.ADD;
+    sphere_object.primitives.push_back(sphere_shape);
+    sphere_object.primitive_poses.push_back(sphere_pose);
+    sphere_object.operation = sphere_object.ADD;
 
-  std::vector<moveit_msgs::CollisionObject> collision_objects;
-  collision_objects.push_back(sphere_object);
+    std::vector<moveit_msgs::CollisionObject> collision_objects;
+    collision_objects.push_back(sphere_object);
 
-  // Now, let's add the collision object into the world
-  ROS_INFO("Add an object into the world");
-  planning_scene_interface->addCollisionObjects(collision_objects);
-  sleep(0.2);
+    // Now, let's add the collision object into the world
+    ROS_INFO("Add an object into the world");
+    planning_scene_interface->addCollisionObjects(collision_objects);
+    sleep(0.2);
+
 }
 
 void spawn_cylinder(std::string obj_id, std::string des_frame, std::string ref_frame, double height, double radius, tf::TransformListener* listener, moveit::planning_interface::MoveGroupInterface* move_group, moveit::planning_interface::PlanningSceneInterface* planning_scene_interface){
@@ -140,7 +141,6 @@ void spawn_cylinder(std::string obj_id, std::string des_frame, std::string ref_f
 }
 
 
-
 void spawn_box(std::string obj_id, std::string des_frame, std::string ref_frame, double width, double length, double height, tf::TransformListener* listener, moveit::planning_interface::MoveGroupInterface* move_group, moveit::planning_interface::PlanningSceneInterface* planning_scene_interface){
 
   tf::StampedTransform transform;
@@ -188,6 +188,7 @@ void spawn_box(std::string obj_id, std::string des_frame, std::string ref_frame,
   ROS_INFO("Add an object into the world");
   planning_scene_interface->addCollisionObjects(collision_objects);
   sleep(0.2);
+
 }
 
 int main(int argc, char** argv)
@@ -283,14 +284,14 @@ int main(int argc, char** argv)
   while(ros::ok()){
 
     spawn_sphere("left_wrist", "/left_wrist", "/world", 0.051, &listener, &move_group, &planning_scene_interface);
-    //spawn_sphere("right_wrist", "/right_wrist", "/world", 0.051, &listener, &move_group, &planning_scene_interface);
+    spawn_sphere("right_wrist", "/right_wrist", "/world", 0.051, &listener, &move_group, &planning_scene_interface);
     //spawn_sphere("head", "/body_head", "/world", 0.117, &listener, &move_group, &planning_scene_interface);
     spawn_cylinder("left_humerus", "/left_humerus", "/world", 0.3384, 0.051, &listener, &move_group, &planning_scene_interface);
-    //spawn_cylinder("right_humerus", "/right_humerus", "/world", 0.3384, 0.051, &listener, &move_group, &planning_scene_interface);
+    spawn_cylinder("right_humerus", "/right_humerus", "/world", 0.3384, 0.051, &listener, &move_group, &planning_scene_interface);
     spawn_cylinder("left_fore_arm", "/left_fore_arm", "/world", 0.261, 0.051, &listener, &move_group, &planning_scene_interface);
-    //spawn_cylinder("right_fore_arm", "/right_fore_arm", "/world", 0.261, 0.051, &listener, &move_group, &planning_scene_interface);
+    spawn_cylinder("right_fore_arm", "/right_fore_arm", "/world", 0.261, 0.051, &listener, &move_group, &planning_scene_interface);
     spawn_box("left_palm", "/left_palm", "/world", 0.09, 0.1944, 0.03996, &listener, &move_group, &planning_scene_interface);
-    //spawn_box("right_palm", "/right_palm", "/world", 0.09, 0.1944, 0.03996, &listener, &move_group, &planning_scene_interface);
+    spawn_box("right_palm", "/right_palm", "/world", 0.09, 0.1944, 0.03996, &listener, &move_group, &planning_scene_interface);
 
     // UPDATE SCENE
     //planning_scene_monitor::PlanningSceneMonitorPtr psm_ptr = visual_tools.getPlanningSceneMonitor();

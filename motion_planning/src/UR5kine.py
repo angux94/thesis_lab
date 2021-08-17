@@ -1,6 +1,21 @@
+#!/usr/bin/env python
+
 import sys
 import numpy as np
 import math
+import rospy
+from std_msgs.msg import String
+from geometry_msgs.msg import PoseStamped
+from tf.transformations import quaternion_matrix
+
+
+
+"""
+Solve the kinematics for the robot, it subscribes (if listener() is called in main) to the /listener topic that comes from unity
+It processes the PoseStamped msg and obtains the T matrix xhich the can be used to find the inverse kinematics in the main function 
+"""
+
+
 
 IKPI = 3.14159265358979
 IK2PI = IKPI * 2
@@ -591,7 +606,69 @@ def BestSol(T):
     bestsol=[q_sols[i*6+0] , q_sols[i*6+1] ,q_sols[i*6+2] ,q_sols[i*6+3] ,q_sols[i*6+4] ,q_sols[i*6+5]]
     return bestsol
 
+
+#ROS part
+pose_unity = PoseStamped()
+T_unity = np.zeros([4, 4])
+t = np.zeros(4)
+q = np.zeros(4)
+
+def cb_pose_T(PS_msg):
+
+
+    frame_id = PS_msg.header.frame_id
+    #Build translation part of the matrix
+    t[0] = -PS_msg.pose.position.y #Unity conventions
+    t[1] = PS_msg.pose.position.x
+    t[2] = PS_msg.pose.position.z
+    t[3] = 1
+    #Build quaternion from pose
+    q[0] = -PS_msg.pose.orientation.y #Respect unity conventions
+    q[1] = PS_msg.pose.orientation.x
+    q[2] = PS_msg.pose.orientation.z
+    q[3] = PS_msg.pose.orientation.w
+
+    R = quaternion_matrix([q[0], q[1], q[2], q[3]])
+
+    rospy.loginfo("I heard id: %s", frame_id)
+    rospy.loginfo("pos x: %f", t[0])
+    rospy.loginfo("pos y: %f", t[1])
+    rospy.loginfo("pos z: %f", t[2])
+    rospy.loginfo("orient x: %f", q[0])
+    rospy.loginfo("orient y: %f", q[1])
+    rospy.loginfo("orient z: %f", q[2])
+    rospy.loginfo("orient w: %f", q[3])
+
+
+    R[:,3] = t
+    T_unity = R
+    print(T_unity)
+
+
+def listener():
+
+    # In ROS, nodes are uniquely named. If two nodes with the same
+    # name are launched, the previous one is kicked off. The
+    # anonymous=True flag means that rospy will choose a unique
+    # name for our 'listener' node so that multiple listeners can
+    # run simultaneously.
+    rospy.init_node('UR5kine', anonymous=True)
+
+    rospy.Subscriber("listener", PoseStamped, cb_pose_T)
+
+    # spin() simply keeps python from exiting until this node is stopped
+    rospy.spin()
+
+
+
+
+
 def main():
+
+    #calls the listener function
+    listener()
+
+    """
     Tp = np.zeros(16)
     Tp[0] =  0.70711
     Tp[1] = 0.00000
@@ -634,6 +711,6 @@ def main():
 
     print("forward matrix: \n")
     print(T)
-
+    """
 if __name__ == '__main__':
 	main()

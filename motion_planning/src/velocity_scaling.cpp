@@ -23,6 +23,11 @@
 
 using namespace std;
 
+
+// Code that generates a motion plan and rescale accordingly the velocities and accelerations depending on the scaling given.
+// Intended to manipulate the computed trajectory for it to be executed faster or slower, even though the computations are being properly done, does not behave good.
+
+
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "velocity_scaling");

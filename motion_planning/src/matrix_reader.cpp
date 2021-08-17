@@ -28,12 +28,14 @@
 
 using namespace std;
 
+//short version of matrix_reader_5 just for the trajcetories from home to each one of the safe positoins
+// the trajectories are recorded in matrix_storer
 
 std::string des_frame;
 
 void cb_frame(const std_msgs::String::ConstPtr& msg_frame)
 {
-  des_frame = msg_frame->data; 
+  des_frame = msg_frame->data;
   cout << "msg: " << des_frame << endl;
 }
 
@@ -145,7 +147,7 @@ int main(int argc, char** argv)
   std::string final_name[6];
 
   ROS_INFO("Start to read");
-  
+
   //read the time stamp and write them to .txt
   foreach(rosbag::MessageInstance const m, view)
   {
@@ -155,7 +157,7 @@ int main(int argc, char** argv)
         if (sn != NULL){
         //std::cout << "start_name " << i_sn << ": " << sn->data << std::endl;
         start_name[i_sn] = sn->data;
-        
+
         i_sn += 1;
         if(i_sn >= noe)
           i_sn = 0;
@@ -167,23 +169,23 @@ int main(int argc, char** argv)
         if (fn != NULL){
         //std::cout << "final_name " << i_fn << ": " << fn->data << std::endl;
         final_name[i_fn] = fn->data;
-        
+
         i_fn += 1;
         if(i_fn >= noe)
           i_fn = 0;
         }
       }
-      
+
       if(m.getTopic() == "trajectory"){
         moveit_msgs::RobotTrajectory::ConstPtr traj = m.instantiate<moveit_msgs::RobotTrajectory>();
         if (traj != NULL){
           //std::cout << "traj" << std::endl;
           trajectory.joint_trajectory = traj->joint_trajectory;
           trajectory.multi_dof_joint_trajectory = traj->multi_dof_joint_trajectory;
-          
+
           my_plan.trajectory_ = trajectory;
           plan_array[i_traj].trajectory_ = my_plan.trajectory_;
-          
+
           i_traj += 1;
           if(i_traj >= noe)
             i_traj = 0;
@@ -200,7 +202,7 @@ int main(int argc, char** argv)
 
           state.joint_state = s->joint_state;
           state.multi_dof_joint_state = s->multi_dof_joint_state;
-          
+
           my_plan.start_state_ = state;
           plan_array[i_state].start_state_ = my_plan.start_state_;
 
@@ -209,7 +211,7 @@ int main(int argc, char** argv)
             i_state = 0;
         }
       }
-      
+
       if(m.getTopic() == "time"){
         std_msgs::Float64::ConstPtr t = m.instantiate<std_msgs::Float64>();
 
@@ -229,8 +231,8 @@ int main(int argc, char** argv)
 
   cout << "File loaded" << endl;
 
-  std::string init_frame = "home";  
-  
+  std::string init_frame = "home";
+
   cout << start_name[0] << endl;
   cout << final_name[0] << endl;
   //move_group.execute(plan_array[0]);
@@ -276,7 +278,7 @@ int main(int argc, char** argv)
 
       }
     }
-    
+
   }
 
   ros::spinOnce();

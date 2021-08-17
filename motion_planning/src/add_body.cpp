@@ -21,6 +21,9 @@
 
 using namespace std;
 
+
+// This code is meant to spawn the desired static objects in the scene, being the plane, the spherical plane and themesh corresponding for car the environment
+
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "add_body");
@@ -38,7 +41,6 @@ int main(int argc, char** argv)
   sleep(2.0);
 
 
-/*
   // Add the PLANE
 
   moveit_msgs::CollisionObject collision_object;
@@ -56,13 +58,6 @@ int main(int argc, char** argv)
   plane_shape.dimensions[2] = 1.4;
 
   // A pose for the box (specified relative to frame_id)
-  tf2::Quaternion myQuaternion;
-
-  myQuaternion.setRPY(0.0,0.0,0.785);
-
-  myQuaternion = myQuaternion.normalize();
-  cout << myQuaternion << endl;
-
   geometry_msgs::Pose plane_pose;
 
   plane_pose.position.x =  0.2687;
@@ -84,7 +79,6 @@ int main(int argc, char** argv)
   // Stuff the new rotation back into the pose. This requires conversion into a msg type
   tf2::convert(q_new, plane_pose.orientation);
 
-
   collision_object.primitives.push_back(plane_shape);
   collision_object.primitive_poses.push_back(plane_pose);
   collision_object.operation = collision_object.ADD;
@@ -96,9 +90,12 @@ int main(int argc, char** argv)
   ROS_INFO("Add an object into the world");
   current_scene.addCollisionObjects(collision_objects);
   sleep(2.0);
-*/
 
-  // Add a Sphere
+
+
+
+/*
+  // Add the Sphere workspace
 
   moveit_msgs::CollisionObject sphere_object;
   sphere_object.header.frame_id = group.getPlanningFrame();
@@ -147,11 +144,11 @@ int main(int argc, char** argv)
   current_scene.addCollisionObjects(collision_objects);
   sleep(2.0);
 
+*/
 
 
 
-
-
+// ADD MESH BODIES
   /*
   //moveit_msgs::CollisionObject collision_object;
   collision_object.header.frame_id = group.getPlanningFrame();
